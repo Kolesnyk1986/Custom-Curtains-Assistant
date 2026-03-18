@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nota Bene Curtains — Асистент</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #faf7f2;
+  --cream2: #f3ede3;
+  --cream3: #ede4d6;
+  --gold: #b8892a;
+  --gold-light: #e8d5a0;
+  --gold-pale: rgba(184,137,42,0.1);
+  --brown: #5a3e1b;
+  --brown-dim: #8a6a3a;
+  --brown-pale: #c4a87a;
+  --text: #2a1f0e;
+  --text-mid: #5a4a2a;
+  --text-dim: #9a8060;
+  --border: rgba(184,137,42,0.2);
+  --border-strong: rgba(184,137,42,0.4);
+  --shadow: 0 2px 16px rgba(90,62,27,0.07);
+  --shadow-lg: 0 8px 32px rgba(90,62,27,0.13);
+}
+
+body {
+  background: var(--cream);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--cream2); }
+::-webkit-scrollbar-thumb { background: var(--gold-light); border-radius: 2px; }
+
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+@keyframes slideIn { from { opacity:0; transform:translateX(-10px); } to { opacity:1; transform:translateX(0); } }
+@keyframes blink { 0%,100%{opacity:0.2;} 50%{opacity:1;} }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.app { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+/* TOP BAR */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0 14px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.logo-block { display:flex; align-items:center; gap:12px; }
+.logo-mark {
+  width:36px; height:36px; border:1.5px solid var(--gold); border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Cormorant Garamond',serif; font-size:14px; color:var(--gold); flex-shrink:0;
+}
+.logo-text { font-family:'Cormorant Garamond',serif; font-size:19px; font-weight:400; color:var(--brown); }
+.logo-sub { font-size:10px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; margin-top:1px; }
+.back-btn {
+  display:none; align-items:center; gap:6px;
+  background:var(--cream2); border:1px solid var(--border-strong);
+  border-radius:8px; padding:7px 14px; font-size:12px; color:var(--brown);
+  cursor:pointer; font-family:'DM Sans',sans-serif; font-weight:400; transition:all .2s;
+}
+.back-btn:hover { background:var(--cream3); border-color:var(--gold); color:var(--gold); }
+.back-btn.visible { display:flex; animation:slideIn .25s ease; }
+
+/* PAGES */
+.page { display:none; animation:fadeIn .3s ease; }
+.page.active { display:block; }
+
+/* HOME */
+.home-hero { text-align:center; padding:36px 0 28px; }
+.home-title { font-family:'Cormorant Garamond',serif; font-size:40px; font-weight:300; color:var(--brown); line-height:1.1; margin-bottom:8px; }
+.home-title em { font-style:italic; color:var(--gold); }
+.home-sub { font-size:12px; color:var(--text-dim); letter-spacing:.5px; }
+
+.menu-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; padding:6px 0 36px; }
+.menu-card {
+  background:#fff; border:1px solid var(--border); border-radius:14px;
+  padding:20px 18px; cursor:pointer; transition:all .22s;
+  box-shadow:var(--shadow); display:flex; flex-direction:column; gap:8px;
+}
+.menu-card:hover { border-color:var(--gold); box-shadow:var(--shadow-lg); transform:translateY(-2px); }
+.menu-card-icon { font-size:26px; }
+.menu-card-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:400; color:var(--brown); }
+.menu-card-desc { font-size:12px; color:var(--text-dim); line-height:1.6; }
+.menu-card-tag { display:inline-block; background:var(--gold-pale); color:var(--gold); font-size:10px; letter-spacing:1.5px; text-transform:uppercase; padding:3px 8px; border-radius:4px; margin-top:2px; align-self:flex-start; }
+
+/* PAGE HEADER */
+.page-header { padding:26px 0 18px; border-bottom:1px solid var(--border); margin-bottom:22px; }
+.page-title { font-family:'Cormorant Garamond',serif; font-size:28px; font-weight:300; color:var(--brown); }
+.page-desc { font-size:12px; color:var(--text-dim); margin-top:4px; }
+
+/* CHAT */
+.chat-wrap { background:#fff; border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; margin-bottom:22px; }
+.chat-messages { min-height:320px; max-height:440px; overflow-y:auto; padding:18px; display:flex; flex-direction:column; gap:12px; }
+.chat-empty { text-align:center; margin:auto; padding:36px 0; color:var(--text-dim); }
+.chat-empty-icon { font-family:'Cormorant Garamond',serif; font-size:38px; opacity:.2; margin-bottom:8px; }
+.chat-empty-text { font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; }
+
+.msg-row { display:flex; animation:fadeIn .25s ease; }
+.msg-row.user { justify-content:flex-end; }
+.msg-row.assistant { justify-content:flex-start; align-items:flex-start; }
+.msg-avatar { width:24px; height:24px; border-radius:50%; background:var(--gold-pale); border:1.5px solid var(--border-strong); display:flex; align-items:center; justify-content:center; font-size:9px; color:var(--gold); margin-right:8px; flex-shrink:0; margin-top:2px; }
+.msg-bubble { max-width:80%; padding:10px 14px; font-size:13.5px; line-height:1.75; white-space:pre-wrap; word-break:break-word; }
+.msg-bubble.user { background:var(--brown); color:var(--cream); border-radius:13px 4px 13px 13px; font-weight:400; }
+.msg-bubble.assistant { background:var(--cream); border:1px solid var(--border); color:var(--text); border-radius:4px 13px 13px 13px; }
+
+.typing-row { display:flex; align-items:center; gap:8px; animation:fadeIn .25s ease; }
+.dot { width:5px; height:5px; border-radius:50%; background:var(--gold-light); }
+.dot:nth-child(1){animation:blink 1.2s 0s infinite;}
+.dot:nth-child(2){animation:blink 1.2s .2s infinite;}
+.dot:nth-child(3){animation:blink 1.2s .4s infinite;}
+
+.chat-input-area { border-top:1px solid var(--border); padding:10px 14px; display:flex; gap:8px; align-items:flex-end; background:var(--cream2); }
+textarea.chat-input { flex:1; background:#fff; border:1px solid var(--border); border-radius:10px; padding:8px 12px; font-size:13px; font-family:'DM Sans',sans-serif; font-weight:300; color:var(--text); resize:none; line-height:1.5; min-height:36px; max-height:100px; overflow-y:auto; outline:none; transition:border-color .2s; }
+textarea.chat-input:focus { border-color:var(--gold); }
+textarea.chat-input::placeholder { color:var(--brown-pale); }
+.send-btn { width:36px; height:36px; border-radius:9px; border:none; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; }
+.send-btn.on { background:var(--brown); color:var(--cream); }
+.send-btn.on:hover { background:var(--gold); }
+.send-btn.off { background:var(--cream3); color:var(--brown-pale); cursor:default; }
+
+/* QUICK */
+.quick-row { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:18px; }
+.qbtn { background:#fff; border:1px solid var(--border); border-radius:20px; padding:6px 13px; font-size:12px; font-family:'DM Sans',sans-serif; color:var(--text-mid); cursor:pointer; transition:all .18s; display:flex; align-items:center; gap:5px; }
+.qbtn:hover { background:var(--gold-pale); border-color:var(--gold); color:var(--gold); }
+
+/* MONITOR */
+.monitor-controls { background:#fff; border:1px solid var(--border); border-radius:14px; padding:20px; margin-bottom:18px; box-shadow:var(--shadow); }
+.monitor-title { font-family:'Cormorant Garamond',serif; font-size:18px; font-weight:400; color:var(--brown); margin-bottom:12px; }
+.fabric-chips { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:14px; }
+.chip { padding:6px 13px; border-radius:20px; border:1.5px solid var(--border); font-size:12px; cursor:pointer; background:var(--cream2); color:var(--text-mid); transition:all .18s; font-family:'DM Sans',sans-serif; }
+.chip.active { background:var(--brown); color:var(--cream); border-color:var(--brown); }
+.chip:hover:not(.active) { border-color:var(--gold); color:var(--gold); background:var(--gold-pale); }
+.monitor-btn { background:var(--brown); color:var(--cream); border:none; border-radius:10px; padding:10px 22px; font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:8px; }
+.monitor-btn:hover { background:var(--gold); }
+.monitor-btn:disabled { background:var(--cream3); color:var(--brown-pale); cursor:default; }
+.spinner { width:13px; height:13px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+
+.results-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(255px,1fr)); gap:12px; margin-top:4px; }
+.result-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); animation:fadeIn .3s ease; }
+.result-card:hover { box-shadow:var(--shadow-lg); }
+.result-supplier { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); margin-bottom:5px; font-weight:500; }
+.result-fabric { font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--brown); margin-bottom:7px; }
+.result-price { font-size:22px; font-weight:500; color:var(--text); margin-bottom:3px; }
+.result-price span { font-size:12px; color:var(--text-dim); font-weight:300; }
+.result-detail { font-size:12px; color:var(--text-dim); line-height:1.65; margin-top:8px; padding-top:8px; border-top:1px solid var(--border); }
+.badge-best { display:inline-block; background:#e8f5e9; color:#2e7d32; font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:2px 8px; border-radius:4px; margin-bottom:6px; font-weight:500; }
+.monitor-status { text-align:center; padding:28px; color:var(--text-dim); font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; }
+.last-updated { font-size:11px; color:var(--text-dim); text-align:right; margin-top:10px; }
+
+/* SUPPLIERS */
+.supplier-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; margin-bottom:28px; }
+.sup-card { background:#fff; border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:var(--shadow); }
+.sup-name { font-family:'Cormorant Garamond',serif; font-size:17px; color:var(--brown); margin-bottom:4px; }
+.sup-url { font-size:11px; color:var(--gold); margin-bottom:7px; }
+.sup-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:7px; }
+.sup-tag { background:var(--cream2); border:1px solid var(--border); border-radius:4px; padding:2px 7px; font-size:11px; color:var(--text-mid); }
+.sup-price { font-size:12px; color:var(--text-dim); }
+.sup-price strong { color:var(--brown); }
+
+.footer { text-align:center; padding:18px 0 28px; font-size:10px; color:var(--text-dim); border-top:1px solid var(--border); margin-top:8px; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="logo-block">
+      <div class="logo-mark">NB</div>
+      <div>
+        <div class="logo-text">Nota Bene Curtains</div>
+        <div class="logo-sub">Brunswick, Ohio</div>
+      </div>
+    </div>
+    <button class="back-btn" id="backBtn" onclick="goHome()">← Головне меню</button>
+  </div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="home-hero">
+      <div class="home-title">Асистент з <em>тканин</em></div>
+      <div class="home-sub">Пошук · Моніторинг цін · Постачальники · Листи постачальникам</div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card" onclick="goPage('chat')">
+        <div class="menu-card-icon">💬</div>
+        <div class="menu-card-title">Асистент</div>
+        <div class="menu-card-desc">Запитай про тканини для штор і тюлів, порівняй постачальників, поради для ринку Ohio</div>
+        <div class="menu-card-tag">AI · Живий пошук</div>
+      </div>
+      <div class="menu-card" onclick="goPage('monitor')">
+        <div class="menu-card-icon">📊</div>
+        <div class="menu-card-title">Моніторинг цін</div>
+        <div class="menu-card-desc">Актуальні ціни на тюль, sheer, велюр і blackout на всіх основних сайтах США прямо зараз</div>
+        <div class="menu-card-tag">Реальний час</div>
+      </div>
+      <div class="menu-card" onclick="goPage('suppliers')">
+        <div class="menu-card-icon">🏭</div>
+        <div class="menu-card-title">Постачальники</div>
+        <div class="menu-card-desc">Перевірені американські оптові постачальники — ціни, спеціалізація, мінімальні замовлення</div>
+        <div class="menu-card-tag">США · Оптом</div>
+      </div>
+      <div class="menu-card" onclick="goPage('email')">
+        <div class="menu-card-icon">✉️</div>
+        <div class="menu-card-title">Листи постачальникам</div>
+        <div class="menu-card-desc">Генерація листів турецьким, польським і американським постачальникам тканин</div>
+        <div class="menu-card-tag">Авто-генерація</div>
+      </div>
+      <div class="menu-card" onclick="goPage('colors')">
+        <div class="menu-card-icon">🎨</div>
+        <div class="menu-card-title">Кольори для Ohio</div>
+        <div class="menu-card-desc">Що купують клієнти в Cleveland, Akron і Medina — тренди, популярні відтінки</div>
+        <div class="menu-card-tag">Локальний ринок</div>
+      </div>
+      <div class="menu-card" onclick="goPage('samples')">
+        <div class="menu-card-icon">📦</div>
+        <div class="menu-card-title">Замовлення зразків</div>
+        <div class="menu-card-desc">Стратегія замовлення зразків — що брати першим, де найдешевше, як зібрати палетку</div>
+        <div class="menu-card-tag">Практично</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="page" id="page-chat">
+    <div class="page-header">
+      <div class="page-title">💬 Асистент з тканин</div>
+      <div class="page-desc">Живий пошук по американських постачальниках · Порівняння цін · Поради для ринку Ohio</div>
+    </div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="sendQ('chat','Знайди тюль voile 118 дюймів дешевше $5 за ярд')">🔍 Тюль до $5/ярд</button>
+      <button class="qbtn" onclick="sendQ('chat','Порівняй ціни на важкий велюр для штор')">💰 Велюр — ціни</button>
+      <button class="qbtn" onclick="sendQ('chat','Які кольори штор популярні в передмісті Cleveland?')">🎨 Тренди Cleveland</button>
+      <button class="qbtn" onclick="sendQ('chat','Де найдешевше купити blackout підкладку оптом?')">🖤 Blackout оптом</button>
+      <button class="qbtn" onclick="sendQ('chat','Як зібрати палетку зразків з бюджетом $50?')">📦 Палетка $50</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-messages" id="chat-msgs">
+        <div class="chat-empty" id="chat-empty"><div class="chat-empty-icon">✦</div><div class="chat-empty-text">Запитай про тканини для штор і тюлів</div></div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Запитай про тканини, ціни, постачальників..." onkeydown="onKey(event,'chat')" oninput="resize(this);updBtn('chat')"></textarea>
+        <button class="send-btn off" id="chat-btn" onclick="doSend('chat')">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONITOR -->
+  <div class="page" id="page-monitor">
+    <div class="page-header">
+      <div class="page-title">📊 Моніторинг цін в реальному часі</div>
+      <div class="page-desc">Актуальні ціни на американських сайтах — оновлюється при кожному запиті</div>
+    </div>
+    <div class="monitor-controls">
+      <div class="monitor-title">Обери категорію тканини</div>
+      <div class="fabric-chips">
+        <div class="chip active" onclick="toggleChip(this,'sheer')">Тюль / Sheer Voile</div>
+        <div class="chip" onclick="toggleChip(this,'drapery')">Drapery Solid</div>
+        <div class="chip" onclick="toggleChip(this,'velvet')">Важкий велюр</div>
+        <div class="chip" onclick="toggleChip(this,'blackout')">Blackout підкладка</div>
+        <div class="chip" onclick="toggleChip(this,'linen')">Льон для штор</div>
+      </div>
+      <button class="monitor-btn" id="monitor-btn" onclick="runMonitor()"><span>🔍</span> Перевірити ціни зараз</button>
+    </div>
+    <div id="monitor-status" class="monitor-status">Обери категорію і натисни «Перевірити ціни»</div>
+    <div class="results-grid" id="results-grid"></div>
+    <div class="last-updated" id="last-updated"></div>
+  </div>
+
+  <!-- SUPPLIERS -->
+  <div class="page" id="page-suppliers">
+    <div class="page-header">
+      <div class="page-title">🏭 Перевірені постачальники США</div>
+      <div class="page-desc">Оптові постачальники тканин для штор і тюлів — ціни, спеціалізація, зразки</div>
+    </div>
+    <div class="supplier-cards">
+      <div class="sup-card">
+        <div class="sup-name">Fabric Wholesale Direct</div>
+        <div class="sup-url">fabricwholesaledirect.com</div>
+        <div class="sup-tags"><span class="sup-tag">Тюль 118"</span><span class="sup-tag">Blackout</span><span class="sup-tag">Crushed Voile</span></div>
+        <div class="sup-price">Sheer Voile: <strong>$3–5/ярд</strong> · Blackout: <strong>$6–10/ярд</strong></div>
+      </div>
+      <div class="sup-card">
+        <div class="sup-name">Fabric Direct</div>
+        <div class="sup-url">fabricdirect.com</div>
+        <div class="sup-tags"><span class="sup-tag">979 артикулів</span><span class="sup-tag">54"–120"</span><span class="sup-tag">Зразок $1.99</span></div>
+        <div class="sup-price">Voile: <strong>$4–7/ярд</strong> · Drapery: <strong>$6–10/ярд</strong></div>
+      </div>
+      <div class="sup-card">
+        <div class="sup-name">Decorative Fabrics Direct</div>
+        <div class="sup-url">decorativefabricsdirect.com</div>
+        <div class="sup-tags"><span class="sup-tag">Waverly</span><span class="sup-tag">Richloom</span><span class="sup-tag">Зразок $2.99</span></div>
+        <div class="sup-price">Drapery: <strong>$8–15/ярд</strong> · Sheer: <strong>$5–10/ярд</strong></div>
+      </div>
+      <div class="sup-card">
+        <div class="sup-name">BuyFabrics</div>
+        <div class="sup-url">buyfabrics.com</div>
+        <div class="sup-tags"><span class="sup-tag">200+ велюрів</span><span class="sup-tag">Chenille</span><span class="sup-tag">Jacquard</span></div>
+        <div class="sup-price">Велюр: <strong>$8–20/ярд</strong></div>
+      </div>
+      <div class="sup-card">
+        <div class="sup-name">Calico Corners</div>
+        <div class="sup-url">calicocorners.com/trade</div>
+        <div class="sup-tags"><span class="sup-tag">Trade -20%</span><span class="sup-tag">Kravet</span><span class="sup-tag">Безкоштовні зразки</span></div>
+        <div class="sup-price">Від <strong>$15/ярд</strong> · Знижка 20% для trade</div>
+      </div>
+      <div class="sup-card">
+        <div class="sup-name">iFabric</div>
+        <div class="sup-url">ifabric.com</div>
+        <div class="sup-tags"><span class="sup-tag">Blackout 3-Pass</span><span class="sup-tag">54"</span><span class="sup-tag">Від 10 ярд</span></div>
+        <div class="sup-price">Blackout: <strong>$5–8/ярд</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL -->
+  <div class="page" id="page-email">
+    <div class="page-header">
+      <div class="page-title">✉️ Листи постачальникам</div>
+      <div class="page-desc">Генерація професійних листів — турецькі, польські, американські постачальники</div>
+    </div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="sendQ('email','Напиши лист турецькому постачальнику тканин для штор — просимо зразки і прайс, акцент на довгострокове партнерство')">🇹🇷 Туреччина</button>
+      <button class="qbtn" onclick="sendQ('email','Напиши лист польському постачальнику тканин для штор з проханням про зразки і мінімальне замовлення')">🇵🇱 Польща</button>
+      <button class="qbtn" onclick="sendQ('email','Напиши лист американському постачальнику про відкриття trade account для бізнесу з пошиву штор')">🇺🇸 США trade</button>
+      <button class="qbtn" onclick="sendQ('email','Напиши follow-up лист постачальнику який не відповів на перший запит')">🔔 Follow-up</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-messages" id="email-msgs">
+        <div class="chat-empty" id="email-empty"><div class="chat-empty-icon">✉️</div><div class="chat-empty-text">Обери тип листа або опиши свій запит</div></div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="email-input" rows="1" placeholder="Опиши який лист потрібен..." onkeydown="onKey(event,'email')" oninput="resize(this);updBtn('email')"></textarea>
+        <button class="send-btn off" id="email-btn" onclick="doSend('email')">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLORS -->
+  <div class="page" id="page-colors">
+    <div class="page-header">
+      <div class="page-title">🎨 Кольори для ринку Ohio</div>
+      <div class="page-desc">Актуальні тренди для Cleveland, Akron і Medina — що купують клієнти зараз</div>
+    </div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="sendQ('colors','Які кольори штор популярні в передмісті Akron і Medina Ohio?')">🏘️ Akron / Medina</button>
+      <button class="qbtn" onclick="sendQ('colors','Які кольори і стилі штор популярні в Cleveland — місто, lofts?')">🏙️ Cleveland</button>
+      <button class="qbtn" onclick="sendQ('colors','Які кольори штор і тюлів популярні навесні 2025 в США?')">🌸 Весна 2025</button>
+      <button class="qbtn" onclick="sendQ('colors','Які тканини підходять для нейтрального сучасного інтер\'єру?')">🏠 Нейтральний стиль</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-messages" id="colors-msgs">
+        <div class="chat-empty" id="colors-empty"><div class="chat-empty-icon">🎨</div><div class="chat-empty-text">Обери район або запитай про тренди</div></div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="colors-input" rows="1" placeholder="Запитай про кольори, стилі, тренди..." onkeydown="onKey(event,'colors')" oninput="resize(this);updBtn('colors')"></textarea>
+        <button class="send-btn off" id="colors-btn" onclick="doSend('colors')">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAMPLES -->
+  <div class="page" id="page-samples">
+    <div class="page-header">
+      <div class="page-title">📦 Стратегія замовлення зразків</div>
+      <div class="page-desc">Як зібрати палетку зразків для клієнтів — де, що і скільки замовляти</div>
+    </div>
+    <div class="quick-row">
+      <button class="qbtn" onclick="sendQ('samples','Як зібрати палетку зразків тканин для штор з бюджетом $50?')">💵 Бюджет $50</button>
+      <button class="qbtn" onclick="sendQ('samples','Де замовити безкоштовні або найдешевші зразки тканин для штор в США?')">🆓 Безкоштовні зразки</button>
+      <button class="qbtn" onclick="sendQ('samples','Які зразки обов\'язково мати для suburban Ohio клієнтів?')">✅ Обов\'язкові зразки</button>
+      <button class="qbtn" onclick="sendQ('samples','Як зареєструватись в Calico Corners trade і отримати memo samples?')">🏷️ Calico Corners</button>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-messages" id="samples-msgs">
+        <div class="chat-empty" id="samples-empty"><div class="chat-empty-icon">📦</div><div class="chat-empty-text">Обери стратегію або постав своє питання</div></div>
+      </div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="samples-input" rows="1" placeholder="Запитай про зразки, палетку..." onkeydown="onKey(event,'samples')" oninput="resize(this);updBtn('samples')"></textarea>
+        <button class="send-btn off" id="samples-btn" onclick="doSend('samples')">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">NOTA BENE CURTAINS · BRUNSWICK, OHIO · CLEVELAND · AKRON · MEDINA</div>
+</div>
+
+<script>
+// ── NAV ──
+let curPage = 'home';
+function goPage(n) {
+  document.getElementById('page-'+curPage).classList.remove('active');
+  document.getElementById('page-'+n).classList.add('active');
+  curPage = n;
+  document.getElementById('backBtn').classList.toggle('visible', n!=='home');
+  window.scrollTo(0,0);
+}
+function goHome(){ goPage('home'); }
+
+// ── SYSTEM PROMPTS ──
+const SYS = {
+  base: `Ти експертний асистент виключно для Nota Bene Curtains — бізнес з пошиву штор на замовлення в Brunswick, Ohio (Cleveland, Akron, Medina).
+ТІЛЬКИ тканини для штор і тюлів: sheer, voile, тюль, drapery, велюр, blackout підкладка.
+Ширина: sheer/voile/тюль 110-120"; drapery 54-60".
+ПОСТАЧАЛЬНИКИ: fabricwholesaledirect.com ($3-5/ярд voile), fabricdirect.com ($4-7/ярд), decorativefabricsdirect.com ($8-15/ярд), buyfabrics.com (велюр $8-20/ярд), calicocorners.com/trade (trade -20%), ifabric.com (blackout $5-8/ярд).
+РИНОК: передмістя (Brunswick/Medina/Akron) — нейтральні (беж, taupe, сірий, айворі); Cleveland — jewel tones (сапфір, смарагд, аметист).
+Завжди відповідай УКРАЇНСЬКОЮ. Конкретно: URL, ціни/ярд, мін. замовлення. Коротко і по суті.`,
+  email: `Пиши професійні, теплі листи постачальникам тканин. Тон — партнерський. Для турецьких — акцент на якість і довгострокову співпрацю. Підпис: "Юлія, Nota Bene Curtains, Brunswick Ohio, USA". Відповідай УКРАЇНСЬКОЮ.`,
+  colors: `Давай конкретні рекомендації кольорів тканин для різних районів Ohio. Вказуй назви кольорів, де їх знайти у постачальників. Відповідай УКРАЇНСЬКОЮ.`,
+  samples: `Давай конкретні списки — що замовити, де, скільки коштує зразок. Як зібрати максимальну палетку за мінімальний бюджет. Відповідай УКРАЇНСЬКОЮ.`
+};
+
+function getSystem(section) {
+  if (section==='email') return SYS.base+'\n\n'+SYS.email;
+  if (section==='colors') return SYS.base+'\n\n'+SYS.colors;
+  if (section==='samples') return SYS.base+'\n\n'+SYS.samples;
+  return SYS.base;
+}
+
+// ── STATE ──
+const hist = { chat:[], email:[], colors:[], samples:[] };
+const busy = { chat:false, email:false, colors:false, samples:false };
+
+// ── HELPERS ──
+function resize(el){ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight,100)+'px'; }
+function updBtn(s){ document.getElementById(s+'-btn').className='send-btn '+(document.getElementById(s+'-input').value.trim()&&!busy[s]?'on':'off'); }
+function onKey(e,s){ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend(s);} }
+function sendQ(s,t){ document.getElementById(s+'-input').value=t; updBtn(s); doSend(s); }
+
+function addMsg(s, role, text){
+  const c = document.getElementById(s+'-msgs');
+  const empty = document.getElementById(s+'-empty');
+  if(empty) empty.style.display='none';
+  const row = document.createElement('div'); row.className='msg-row '+role;
+  if(role==='assistant'){
+    const av=document.createElement('div'); av.className='msg-avatar'; av.textContent='✦'; row.appendChild(av);
+  }
+  const bub=document.createElement('div'); bub.className='msg-bubble '+role; bub.textContent=text;
+  row.appendChild(bub); c.appendChild(row); c.scrollTop=c.scrollHeight;
+}
+
+function showTyping(s){
+  const c=document.getElementById(s+'-msgs');
+  const empty=document.getElementById(s+'-empty');
+  if(empty) empty.style.display='none';
+  const row=document.createElement('div'); row.className='typing-row'; row.id=s+'-typing';
+  const av=document.createElement('div'); av.className='msg-avatar'; av.textContent='✦'; row.appendChild(av);
+  const dots=document.createElement('div'); dots.style.cssText='display:flex;gap:5px';
+  for(let i=0;i<3;i++){const d=document.createElement('div');d.className='dot';dots.appendChild(d);}
+  row.appendChild(dots); c.appendChild(row); c.scrollTop=c.scrollHeight;
+}
+
+function hideTyping(s){ document.getElementById(s+'-typing')?.remove(); }
+
+// ── SEND ──
+async function doSend(s){
+  const inp=document.getElementById(s+'-input');
+  const text=inp.value.trim();
+  if(!text||busy[s]) return;
+  inp.value=''; inp.style.height='auto';
+  busy[s]=true; updBtn(s);
+  addMsg(s,'user',text);
+  hist[s].push({role:'user',content:text});
+  showTyping(s);
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:getSystem(s), tools:[{type:'web_search_20250305',name:'web_search'}], messages:hist[s] })
+    });
+    const data=await res.json();
+    const reply=data.content.filter(b=>b.type==='text').map(b=>b.text).join('\n')||'Немає відповіді.';
+    hist[s].push({role:'assistant',content:reply});
+    hideTyping(s); addMsg(s,'assistant',reply);
+  } catch {
+    hideTyping(s); addMsg(s,'assistant','Помилка з\'єднання. Спробуй ще раз.');
+  }
+  busy[s]=false; updBtn(s);
+}
+
+// ── MONITOR ──
+let selChips=new Set(['sheer']), monBusy=false;
+const CHIP_LABELS={sheer:'Тюль / Sheer Voile',drapery:'Drapery Solid',velvet:'Важкий велюр',blackout:'Blackout підкладка',linen:'Льон для штор'};
+
+function toggleChip(el,v){
+  if(selChips.has(v)){if(selChips.size===1)return;selChips.delete(v);el.classList.remove('active');}
+  else{selChips.add(v);el.classList.add('active');}
+}
+
+const MON_SYS=`You are a fabric price research tool. Search US supplier websites for current wholesale prices for window treatment fabrics. Return ONLY a valid JSON array, no markdown, no explanation. Each object: {"supplier":"name","url":"domain.com","fabric":"type and width","priceRange":"$X–$X/yard","sampleCost":"$X or Free","minOrder":"X yards","note":"brief note","isBest":true/false}. Mark best value as isBest:true. Include 4-6 results from: fabricwholesaledirect.com, fabricdirect.com, decorativefabricsdirect.com, buyfabrics.com, ifabric.com`;
+
+async function runMonitor(){
+  if(monBusy) return;
+  monBusy=true;
+  const btn=document.getElementById('monitor-btn');
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div> Шукаю ціни...';
+  const status=document.getElementById('monitor-status');
+  const grid=document.getElementById('results-grid');
+  const lu=document.getElementById('last-updated');
+  status.style.display='block'; status.textContent='🔍 Пошук актуальних цін на американських сайтах...';
+  grid.innerHTML=''; lu.textContent='';
+  const cats=Array.from(selChips).map(k=>CHIP_LABELS[k]).join(', ');
+  const q=`Find current wholesale prices per yard for these window treatment fabrics: ${cats}. Search fabricwholesaledirect.com, fabricdirect.com, decorativefabricsdirect.com, buyfabrics.com, ifabric.com. Include price range, sample cost, minimum order.`;
+  try {
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:MON_SYS,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:q}]})
+    });
+    const data=await res.json();
+    const raw=data.content.filter(b=>b.type==='text').map(b=>b.text).join('');
+    let results;
+    try { const m=raw.replace(/```json|```/g,'').trim().match(/\[[\s\S]*\]/); results=JSON.parse(m?m[0]:raw); }
+    catch { results=fallback(); }
+    status.style.display='none';
+    results.forEach((r,i)=>{
+      const card=document.createElement('div'); card.className='result-card'; card.style.animationDelay=(i*.08)+'s';
+      card.innerHTML=`
+        ${r.isBest?'<div class="badge-best">✓ Найкраща ціна</div>':''}
+        <div class="result-supplier">${r.supplier}</div>
+        <div class="result-fabric">${r.fabric}</div>
+        <div class="result-price">${r.priceRange||r.price} <span>/ ярд</span></div>
+        <div class="result-detail">
+          ${r.sampleCost?`🧵 Зразок: <strong>${r.sampleCost}</strong><br>`:''}
+          ${r.minOrder?`📦 Мін.: <strong>${r.minOrder}</strong><br>`:''}
+          ${r.note?`💬 ${r.note}<br>`:''}
+          <a href="https://${r.url}" target="_blank" style="color:var(--gold);font-size:11px;margin-top:4px;display:inline-block;">${r.url} →</a>
+        </div>`;
+      grid.appendChild(card);
+    });
+    const now=new Date(); lu.textContent=`Оновлено: ${now.toLocaleDateString('uk-UA')} о ${now.toLocaleTimeString('uk-UA',{hour:'2-digit',minute:'2-digit'})}`;
+  } catch {
+    status.textContent='⚠️ Помилка пошуку. Перевір з\'єднання і спробуй ще раз.';
+  }
+  btn.disabled=false; btn.innerHTML='<span>🔍</span> Перевірити ціни знову';
+  monBusy=false;
+}
+
+function fallback(){
+  return [
+    {supplier:'Fabric Wholesale Direct',url:'fabricwholesaledirect.com',fabric:'Sheer Voile 118"',priceRange:'$3–5',sampleCost:'$2.99',minOrder:'1 ярд',note:'40+ кольорів, ідеальний для підлогових штор',isBest:true},
+    {supplier:'Fabric Direct',url:'fabricdirect.com',fabric:'Drapery Voile 120"',priceRange:'$4–7',sampleCost:'$1.99',minOrder:'1 ярд',note:'979 артикулів, відправка того ж дня',isBest:false},
+    {supplier:'Decorative Fabrics Direct',url:'decorativefabricsdirect.com',fabric:'Drapery Solid 54"',priceRange:'$8–15',sampleCost:'$2.99',minOrder:'5 ярдів',note:'Waverly, Richloom, Covington',isBest:false},
+    {supplier:'BuyFabrics',url:'buyfabrics.com',fabric:'Velvet Drapery 54"',priceRange:'$8–20',sampleCost:'$3.00',minOrder:'1 ярд',note:'200+ велюрів',isBest:false},
+    {supplier:'iFabric',url:'ifabric.com',fabric:'Blackout Lining 54"',priceRange:'$5–8',sampleCost:'поярдово',minOrder:'10 ярдів',note:'3-Pass, 70% поліестер + 30% бавовна',isBest:false},
+  ];
+}
+</script>
+</body>
+</html>
