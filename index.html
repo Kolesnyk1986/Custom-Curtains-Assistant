@@ -472,7 +472,7 @@ async function doSend(s){
   showTyping(s);
   try {
     const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1000, system:getSystem(s), tools:[{type:'web_search_20250305',name:'web_search'}], messages:hist[s] })
     });
     const data=await res.json();
@@ -510,7 +510,7 @@ async function runMonitor(){
   const q=`Find current wholesale prices per yard for these window treatment fabrics: ${cats}. Search fabricwholesaledirect.com, fabricdirect.com, decorativefabricsdirect.com, buyfabrics.com, ifabric.com. Include price range, sample cost, minimum order.`;
   try {
     const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
+      method:'POST', headers:{'Content-Type':'application/json','x-api-key':'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','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:MON_SYS,tools:[{type:'web_search_20250305',name:'web_search'}],messages:[{role:'user',content:q}]})
     });
     const data=await res.json();
